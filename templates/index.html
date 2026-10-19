@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FR - Ficha e Relatório Diário</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f5f5f5; color: #333; line-height: 1.6; padding: 20px; max-width: 900px; margin: 0 auto; }
+        header { background: #1a3a5c; color: white; padding: 20px; border-radius: 8px 8px 0 0; margin-bottom: 20px; }
+        header h1 { font-size: 1.5rem; margin-bottom: 5px; }
+        header p { opacity: 0.9; font-size: 0.9rem; }
+
+        .form-container { background: white; padding: 30px; border-radius: 0 0 8px 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .section { margin-bottom: 25px; border-bottom: 1px solid #e0e0e0; padding-bottom: 15px; }
+        .section:last-child { border-bottom: none; }
+        .section h2 { color: #1a3a5c; margin-bottom: 15px; font-size: 1.1rem; display: flex; align-items: center; gap: 8px; }
+        .section h2::before { content: ''; width: 4px; height: 24px; background: #1a3a5c; display: inline-block; }
+
+        .grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; }
+        .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; }
+        .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+
+        .field { margin-bottom: 12px; }
+        .field label { display: block; font-size: 0.85rem; font-weight: 600; color: #555; margin-bottom: 5px; }
+        .field input { width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; font-size: 0.9rem; }
+        .field input:focus { outline: none; border-color: #1a3a5c; }
+
+        .checkbox-group { display: flex; gap: 15px; flex-wrap: wrap; margin-top: 5px; }
+        .checkbox-item { display: flex; align-items: center; gap: 6px; font-size: 0.85rem; }
+        .checkbox-item input { width: auto; }
+
+        .textarea-field { width: 100%; min-height: 80px; padding: 8px; border: 1px solid #ccc; border-radius: 4px; font-family: inherit; font-size: 0.9rem; resize: vertical; }
+
+        .btn-gerar { background: #1a3a5c; color: white; border: none; padding: 12px 30px; font-size: 1rem; font-weight: 600; border-radius: 6px; cursor: pointer; width: 100%; margin-top: 20px; transition: background 0.2s; }
+        .btn-gerar:hover { background: #152f4a; }
+        .btn-gerar:active { transform: scale(0.98); }
+
+        .alert { padding: 12px; border-radius: 4px; margin-bottom: 20px; display: none; }
+        .alert.error { background: #fdecea; color: #c53030; border: 1px solid #feb2b2; }
+
+        @media (max-width: 600px) {
+            .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>📋 FR - Ficha e Relatório Diário</h1>
+        <p>Sistema de preenchimento automático da Ficha de Relatório de Serviços</p>
+    </header>
+
+    <div class="form-container">
+        <div id="alert" class="alert error"></div>
+
+        <form id="formFr">
+            <!-- Dados do Veículo -->
+            <div class="section">
+                <h2>🚗 Dados do Veículo</h2>
+                <div class="grid-3">
+                    <div class="field">
+                        <label>Número</label>
+                        <input type="text" name="numero" placeholder="Nº do veículo">
+                    </div>
+                    <div class="field">
+                        <label>Marca</label>
+                        <input type="text" name="marca" placeholder="Marca">
+                    </div>
+                    <div class="field">
+                        <label>Tombamento</label>
+                        <input type="text" name="tombamento" placeholder="Tombo">
+                    </div>
+                    <div class="field">
+                        <label>Modelo</label>
+                        <input type="text" name="modelo" placeholder="Modelo">
+                    </div>
+                    <div class="field">
+                        <label>Placa</label>
+                        <input type="text" name="placa" placeholder="ABC-1234">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Condutor -->
+            <div class="section">
+                <h2>👤 Condutor</h2>
+                <div class="grid-3">
+                    <div class="field">
+                        <label>Nome do Condutor</label>
+                        <input type="text" name="condutor" placeholder="Nome completo">
+                    </div>
+                    <div class="field">
+                        <label>Cargo / Função</label>
+                        <input type="text" name="cargo" placeholder="Motorista">
+                    </div>
+                    <div class="field">
+                        <label>Unidade</label>
+                        <input type="text" name="unidade" value="SMSUZ">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Combustível -->
+            <div class="section">
+                <h2>⛽ Combustível</h2>
+                <p style="font-size: 0.85rem; color: #666; margin-bottom: 10px;">Marque o nível do tanque:</p>
+                <div class="grid-4">
+                    <label class="checkbox-item">
+                        <input type="checkbox" name="combustivel" value="cheio"> Cheio
+                    </label>
+                    <label class="checkbox-item">
+                        <input type="checkbox" name="combustivel" value="3_4"> 3/4
+                    </label>
+                    <label class="checkbox-item">
+                        <input type="checkbox" name="combustivel" value="1_2"> 1/2
+                    </label>
+                    <label class="checkbox-item">
+                        <input type="checkbox" name="combustivel" value="1_4"> 1/4
+                    </label>
+                </div>
+            </div>
+
+            <!-- Horários e KM -->
+            <div class="section">
+                <h2>📍 Horários e Quilometragem</h2>
+                <div class="grid-4">
+                    <div class="field">
+                        <label>Partida (km / Hod.)</label>
+                        <input type="text" name="partida_km" placeholder="00000">
+                    </div>
+                    <div class="field">
+                        <label>Partida - Horário</label>
+                        <input type="text" name="partida_hora" placeholder="00:00">
+                    </div>
+                    <div class="field">
+                        <label>Portaria</label>
+                        <input type="text" name="portaria" placeholder="Portaria">
+                    </div>
+                    <div class="field">
+                        <label>Retorno (km / Hod.)</label>
+                        <input type="text" name="retorno_km" placeholder="00000">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Descrição dos Serviços -->
+            <div class="section">
+                <h2>📝 Descrição dos Serviços</h2>
+                <div class="field">
+                    <label>Descrição resumida dos serviços a serem executados</label>
+                    <textarea name="descricao" class="textarea-field" placeholder="Descreva os serviços..."></textarea>
+                </div>
+                <div class="field" style="margin-top: 10px;">
+                    <label>Local(is) onde será(ão) realizado(s)</label>
+                    <input type="text" name="locais" placeholder="Locais de atendimento">
+                </div>
+            </div>
+
+            <!-- Itinerário (Página 2) -->
+            <div class="section">
+                <h2>🗺️ Itinerário (Página 2)</h2>
+                <div class="grid-4">
+                    <div class="field">
+                        <label>Saída - km / Hod.</label>
+                        <input type="text" name="saida_km" placeholder="00000">
+                    </div>
+                    <div class="field">
+                        <label>Saída - Horário</label>
+                        <input type="text" name="saida_hora" placeholder="00:00">
+                    </div>
+                    <div class="field">
+                        <label>Itinerário</label>
+                        <input type="text" name="itinerario" placeholder="Rota / destino">
+                    </div>
+                    <div class="field">
+                        <label>Chegada - km / Hod.</label>
+                        <input type="text" name="chegada_km" placeholder="00000">
+                    </div>
+                    <div class="field">
+                        <label>Chegada - Horário</label>
+                        <input type="text" name="chegada_hora" placeholder="00:00">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Assinatura e Data -->
+            <div class="section">
+                <h2>✍️ Assinatura e Data</h2>
+                <div class="grid-2">
+                    <div class="field">
+                        <label>Data</label>
+                        <input type="text" name="data" placeholder="__/__/____">
+                    </div>
+                    <div class="field">
+                        <label>Assinatura do Condutor</label>
+                        <input type="text" name="assinatura" placeholder="Assinatura (após impressão)">
+                    </div>
+                </div>
+                <p style="font-size: 0.8rem; color: #666; margin-top: 10px;">A assinatura é feita manualmente após imprimir.</p>
+            </div>
+
+            <button type="submit" class="btn-gerar">📄 Gerar PDF Preenchido</button>
+        </form>
+    </div>
+
+    <script>
+        const form = document.getElementById('formFr');
+        const alert = document.getElementById('alert');
+
+        // Preencher data atual automaticamente
+        const hoje = new Date();
+        const dia = String(hoje.getDate()).padStart(2, '0');
+        const mes = String(hoje.getMonth() + 1).padStart(2, '0');
+        const ano = hoje.getFullYear();
+        const inputData = form.querySelector('input[name="data"]');
+        if (inputData && !inputData.value) {
+            inputData.value = `${dia}/${mes}/${ano}`;
+        }
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            alert.style.display = 'none';
+
+            const formData = new FormData(form);
+            const dados = {};
+
+            // Campos simples
+            for (let [key, value] of formData.entries()) {
+                if (key === 'combustivel') {
+                    if (!dados.combustivel_cheio) dados.combustivel_cheio = '';
+                    if (!dados.combustivel_3_4) dados.combustivel_3_4 = '';
+                    if (!dados.combustivel_1_2) dados.combustivel_1_2 = '';
+                    if (!dados.combustivel_1_4) dados.combustivel_1_4 = '';
+                    if (value === 'cheio') dados.combustivel_cheio = 'X';
+                    if (value === '3_4') dados.combustivel_3_4 = 'X';
+                    if (value === '1_2') dados.combustivel_1_2 = 'X';
+                    if (value === '1_4') dados.combustivel_1_4 = 'X';
+                } else {
+                    dados[key] = value;
+                }
+            }
+
+            try {
+                const response = await fetch('/gerar', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(dados)
+                });
+
+                if (!response.ok) {
+                    const erro = await response.json();
+                    throw new Error(erro.erro || 'Erro ao gerar PDF');
+                }
+
+                const blob = await response.blob();
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `FR_preenchida_${dia}${mes}${ano}.pdf`;
+                document.body.appendChild(a);
+                a.click();
+                window.URL.revokeObjectURL(url);
+                document.body.removeChild(a);
+            } catch (err) {
+                alert.textContent = err.message;
+                alert.style.display = 'block';
+            }
+        });
+    </script>
+</body>
+</html>
